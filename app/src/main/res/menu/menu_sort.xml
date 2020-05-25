@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/sort_popular"
+        android:icon="@drawable/icon_popular"
+        android:orderInCategory="1"
+        android:title="@string/popular" />
+
+    <item
+        android:id="@+id/sort_top_rated"
+        android:icon="@drawable/icon_top_rated"
+        android:orderInCategory="2"
+        android:title="@string/top_rated" />
+
+    <item
+        android:id="@+id/sort_trending"
+        android:icon="@drawable/icon_trending"
+        android:orderInCategory="3"
+        android:title="@string/movie" />
+
+
+</menu>
