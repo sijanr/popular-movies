@@ -6,8 +6,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sijanrijal.popularmovies.databinding.ListItemReviewsBinding;
 import com.sijanrijal.popularmovies.model.Reviews;
 
 import java.util.List;
@@ -28,9 +30,12 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_reviews, parent, false);
-        return new ViewHolder(view);
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        ListItemReviewsBinding binding = DataBindingUtil.inflate(
+                layoutInflater, R.layout.list_item_reviews, parent, false
+        );
+
+        return new ViewHolder(binding);
     }
 
     @Override
@@ -45,18 +50,16 @@ public class ReviewListAdapter extends RecyclerView.Adapter<ReviewListAdapter.Vi
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView reviewer;
-        private TextView review;
+        private final ListItemReviewsBinding binding;
 
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            reviewer = itemView.findViewById(R.id.reviewer_name);
-            review = itemView.findViewById(R.id.review);
+        public ViewHolder(@NonNull ListItemReviewsBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
 
         public void setReviews(int position) {
-            reviewer.setText(reviewList.get(position).author);
-            review.setText(reviewList.get(position).content);
+            binding.reviewerName.setText(reviewList.get(position).author);
+            binding.review.setText(reviewList.get(position).content);
         }
     }
 }

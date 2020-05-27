@@ -2,6 +2,7 @@ package com.sijanrijal.popularmovies;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -13,6 +14,7 @@ import android.util.Log;
 
 import com.sijanrijal.popularmovies.database.Favorite;
 import com.sijanrijal.popularmovies.database.FavoriteDatabase;
+import com.sijanrijal.popularmovies.databinding.ActivityFavoritesBinding;
 
 import java.util.List;
 
@@ -20,27 +22,26 @@ public class FavoritesActivity extends AppCompatActivity {
 
     private static final String TAG = "FavoritesActivity";
 
-    private RecyclerView mRecyclerView;
+
     private FavoritesListAdapter mAdapter;
     private FavoriteDatabase mDatabase;
-    private Toolbar toolbar;
+
+    private ActivityFavoritesBinding activityFavoritesBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favorites);
-        toolbar = findViewById(R.id.toolbar_favorites);
-        setSupportActionBar(toolbar);
+        activityFavoritesBinding = DataBindingUtil.setContentView(this,R.layout.activity_favorites);
+        setSupportActionBar(activityFavoritesBinding.toolbarFavorites);
 
         mDatabase = FavoriteDatabase.getInstance(getApplicationContext());
 
-        mRecyclerView = findViewById(R.id.recycler_view_favorites);
-        mRecyclerView.setHasFixedSize(true);
+        activityFavoritesBinding.recyclerViewFavorites.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
-        mRecyclerView.setLayoutManager(layoutManager);
+        activityFavoritesBinding.recyclerViewFavorites.setLayoutManager(layoutManager);
         mAdapter = new FavoritesListAdapter();
         setupViewModel();
-        mRecyclerView.setAdapter(mAdapter);
+        activityFavoritesBinding.recyclerViewFavorites.setAdapter(mAdapter);
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -60,7 +61,7 @@ public class FavoritesActivity extends AppCompatActivity {
                     }
                 });
             }
-        }).attachToRecyclerView(mRecyclerView);
+        }).attachToRecyclerView(activityFavoritesBinding.recyclerViewFavorites);
 
 
     }

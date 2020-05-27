@@ -2,6 +2,7 @@ package com.sijanrijal.popularmovies;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +19,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sijanrijal.popularmovies.database.Favorite;
 import com.sijanrijal.popularmovies.database.FavoriteDatabase;
+import com.sijanrijal.popularmovies.databinding.ActivityMovieDetailBinding;
 import com.sijanrijal.popularmovies.model.MovieInfo;
 import com.sijanrijal.popularmovies.model.Reviews;
 import com.squareup.moshi.JsonAdapter;
@@ -40,55 +42,30 @@ import okhttp3.Response;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
-    private ImageView backDropImage;
-    private CollapsingToolbarLayout mCollapsingToolbarLayout;
-    private FloatingActionButton floatingActionButton;
-
-    private ImageView mMoviePoster;
-    private TextView mMovieTitle;
-    private TextView mMoviePlot;
-
-    private TextView mReleaseDate;
-    private TextView mGenre;
-    private TextView mRating;
-
     private FavoriteDatabase favoriteDatabase;
     private ReviewListAdapter mAdapter;
-    private TextView errorReviewMessage;
+
+    private ActivityMovieDetailBinding binding;
 
     private static final String TAG = "MovieDetailActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_movie_detail);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_movie_detail);
         favoriteDatabase = FavoriteDatabase.getInstance(getApplicationContext());
 
-        backDropImage = findViewById(R.id.backdrop_poster_iv);
 
-        Toolbar mToolbar = findViewById(R.id.toolbar_detail);
-        setSupportActionBar(mToolbar);
+        setSupportActionBar(binding.toolbarDetail);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        errorReviewMessage = findViewById(R.id.error_review);
-        errorReviewMessage.setVisibility(View.GONE);
 
-        mCollapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
-        floatingActionButton = findViewById(R.id.rating_fab);
+        binding.included.errorReview.setVisibility(View.GONE);
 
-        mMoviePoster = findViewById(R.id.movie_detail_poster);
-        mMovieTitle = findViewById(R.id.movie_title);
-        mMoviePlot = findViewById(R.id.movie_plot_tv);
-
-        mRating = findViewById(R.id.rating_tv);
-        mGenre = findViewById(R.id.genre_tv);
-        mReleaseDate = findViewById(R.id.release_tv);
-
-        RecyclerView recyclerView = findViewById(R.id.reviews_recycler_view);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setHasFixedSize(true);
+        binding.included.reviewsRecyclerView.setLayoutManager(layoutManager);
+        binding.included.reviewsRecyclerView.setHasFixedSize(true);
         mAdapter = new ReviewListAdapter(new ArrayList<Reviews.ReviewsContent>());
-        recyclerView.setAdapter(mAdapter);
+        binding.included.reviewsRecyclerView.setAdapter(mAdapter);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -97,13 +74,13 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
         }
 
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+        binding.ratingFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String movieTitle = mMovieTitle.getText().toString();
-                final String movieGenre = mGenre.getText().toString();
-                final String release = mReleaseDate.getText().toString();
-                final double rating = Double.parseDouble(mRating.getText().toString());
+                final String movieTitle = binding.included.movieTitle.getText().toString();
+                final String movieGenre = binding.included.genreTv.getText().toString();
+                final String release = binding.included.releaseTv.getText().toString();
+                final double rating = Double.parseDouble(binding.included.ratingTv.getText().toString());
                 AppExecutors.getInstance().diskIO().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -145,7 +122,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        errorReviewMessage.setVisibility(View.VISIBLE);
+                        binding.included.errorReview.setVisibility(View.VISIBLE);
                     }
                 });
             }
@@ -154,7 +131,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     call.cancel();
-                    errorReviewMessage.setVisibility(View.VISIBLE);
+                    binding.included.errorReview.setVisibility(View.VISIBLE);
                 }
 
                 final String jsonString = response.body().string();
@@ -185,7 +162,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         if (reviews != null && reviews.results.size() > 0) {
             mAdapter.setReviews(reviews.results);
         } else {
-            errorReviewMessage.setVisibility(View.VISIBLE);
+            binding.included.errorReview.setVisibility(View.VISIBLE);
         }
     }
 
@@ -195,16 +172,16 @@ public class MovieDetailActivity extends AppCompatActivity {
     private void setData(MovieInfo movie) {
 
         //set the toolbar's title, image and rating
-        mCollapsingToolbarLayout.setTitle(movie.title);
-        Glide.with(this).load(MovieAdapter.IMAGE_URL.replace("w500", "w780") + movie.poster_path).into(backDropImage);
+        binding.collapsingToolbar.setTitle(movie.title);
+        Glide.with(this).load(MovieAdapter.IMAGE_URL.replace("w500", "w780") + movie.poster_path).into(binding.backdropPosterIv);
 
-        Glide.with(this).load(MovieAdapter.IMAGE_URL + movie.poster_path).into(mMoviePoster);
-        mMovieTitle.setText(movie.title);
-        mMoviePlot.setText(movie.overview);
+        Glide.with(this).load(MovieAdapter.IMAGE_URL + movie.poster_path).into(binding.included.movieDetailPoster);
+        binding.included.movieTitle.setText(movie.title);
+        binding.included.moviePlotTv.setText(movie.overview);
 
         setDate(movie.release_date);
         setGenre(movie.genre_ids);
-        mRating.setText(String.valueOf(movie.vote_average));
+        binding.included.ratingTv.setText(String.valueOf(movie.vote_average));
         getReviews(movie.id);
 
     }
@@ -219,7 +196,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd, yyyy");
         String formattedDate = simpleDateFormat.format(calendar.getTime());
-        mReleaseDate.setText(formattedDate);
+        binding.included.releaseTv.setText(formattedDate);
     }
 
 
@@ -240,7 +217,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 }
             }
 
-            mGenre.setText(movieGenre.toString());
+            binding.included.genreTv.setText(movieGenre.toString());
         }
     }
 }

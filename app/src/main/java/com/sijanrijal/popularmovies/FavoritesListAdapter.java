@@ -6,9 +6,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.sijanrijal.popularmovies.database.Favorite;
+import com.sijanrijal.popularmovies.databinding.ListItemFavoritesBinding;
 
 import java.util.List;
 
@@ -19,8 +21,10 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
     @NonNull
     @Override
     public FavoritesListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-       View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_favorites, parent, false);
-       return new ViewHolder(view);
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        ListItemFavoritesBinding listItemFavoritesBinding = DataBindingUtil.inflate(
+                layoutInflater, R.layout.list_item_favorites, parent, false);
+        return new ViewHolder(listItemFavoritesBinding);
     }
 
     @Override
@@ -30,7 +34,7 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
 
     @Override
     public int getItemCount() {
-        if(mFavoriteMovies != null) {
+        if (mFavoriteMovies != null) {
             return mFavoriteMovies.size();
         }
         return 0;
@@ -46,28 +50,20 @@ public class FavoritesListAdapter extends RecyclerView.Adapter<FavoritesListAdap
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        private final ListItemFavoritesBinding listItemFavoritesBinding;
 
-        private TextView movieTitle;
-        private TextView rating;
-        private TextView genre;
-        private TextView releaseDate;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            movieTitle = itemView.findViewById(R.id.movie_title_favorites);
-            genre = itemView.findViewById(R.id.genre_favorite);
-            rating = itemView.findViewById(R.id.rating_favorite);
-            releaseDate = itemView.findViewById(R.id.release_favorite);
+        public ViewHolder(@NonNull ListItemFavoritesBinding listItemFavoritesBinding) {
+            super(listItemFavoritesBinding.getRoot());
+            this.listItemFavoritesBinding = listItemFavoritesBinding;
         }
 
         public void setTexts() {
             Favorite movie = mFavoriteMovies.get(getAdapterPosition());
-            if(movie != null) {
-                movieTitle.setText(movie.getMovieTitle());
-                rating.setText(String.valueOf(movie.getMovieRating()));
-                genre.setText(movie.getMovieGenres());
-                releaseDate.setText(movie.getMovieRelease());
+            if (movie != null) {
+                listItemFavoritesBinding.movieTitleFavorites.setText(movie.getMovieTitle());
+                listItemFavoritesBinding.ratingFavorite.setText(String.valueOf(movie.getMovieRating()));
+                listItemFavoritesBinding.genreFavorite.setText(movie.getMovieGenres());
+                listItemFavoritesBinding.releaseFavorite.setText(movie.getMovieRelease());
             }
         }
     }
