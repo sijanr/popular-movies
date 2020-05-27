@@ -6,13 +6,18 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.sijanrijal.popularmovies.database.Favorite;
+import com.sijanrijal.popularmovies.database.FavoriteDatabase;
 import com.sijanrijal.popularmovies.model.MovieInfo;
 
 import java.text.SimpleDateFormat;
@@ -24,7 +29,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private ImageView backDropImage;
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
-    private ExtendedFloatingActionButton mExtendedFloatingActionButton;
+    private FloatingActionButton mExtendedFloatingActionButton;
 
     private ImageView mMoviePoster;
     private TextView mMovieTitle;
@@ -34,12 +39,15 @@ public class MovieDetailActivity extends AppCompatActivity {
     private TextView mGenre;
     private TextView mRating;
 
+    private FavoriteDatabase favoriteDatabase;
+
     private static final String TAG = "MovieDetailActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+        favoriteDatabase = FavoriteDatabase.getInstance(getApplicationContext());
 
         backDropImage = findViewById(R.id.backdrop_poster_iv);
 
@@ -49,7 +57,6 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         mCollapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
         mExtendedFloatingActionButton = findViewById(R.id.rating_fab);
-        AppBarLayout mAppBar = findViewById(R.id.app_bar);
 
         mMoviePoster = findViewById(R.id.movie_detail_poster);
         mMovieTitle = findViewById(R.id.movie_title);
@@ -65,6 +72,32 @@ public class MovieDetailActivity extends AppCompatActivity {
                 setData((MovieInfo) intent.getParcelableExtra("MOVIE"));
             }
         }
+
+        mExtendedFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String movieTitle = mMovieTitle.getText().toString();
+                final String movieGenre = mGenre.getText().toString();
+                final String release = mReleaseDate.getText().toString();
+                final double rating = Double.parseDouble(mRating.getText().toString());
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        favoriteDatabase.favoritesDAO().insertMovie(
+                                new Favorite(movieTitle, movieGenre, release, rating)
+                        );
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "Added to your favorites", Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
     }
 
     /**
@@ -75,7 +108,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         //set the toolbar's title, image and rating
         mCollapsingToolbarLayout.setTitle(movie.title);
         Glide.with(this).load(MovieAdapter.IMAGE_URL.replace("w500", "w780") + movie.poster_path).into(backDropImage);
-        mExtendedFloatingActionButton.setText(String.valueOf(movie.vote_average));
 
         Glide.with(this).load(MovieAdapter.IMAGE_URL + movie.poster_path).into(mMoviePoster);
         mMovieTitle.setText(movie.title);

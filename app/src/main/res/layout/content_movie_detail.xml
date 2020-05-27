@@ -58,6 +58,7 @@
 
                 <TextView
                     android:id="@+id/rating_label"
+                    android:text="@string/rating"
                     style="@style/TextAppearance.MaterialComponents.Subtitle2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -69,6 +70,7 @@
 
                 <TextView
                     android:id="@+id/release_year_label"
+                    android:text="@string/release"
                     style="@style/TextAppearance.MaterialComponents.Subtitle2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -78,6 +80,7 @@
 
                 <TextView
                     android:id="@+id/genre_label"
+                    android:text="@string/genre"
                     style="@style/TextAppearance.MaterialComponents.Subtitle2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

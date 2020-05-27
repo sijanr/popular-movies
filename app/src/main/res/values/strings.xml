@@ -9,5 +9,13 @@
     <string name="connection_error">Failed to connect. Please try again later.</string>
     <string name="header_text_main">Here are the movies based on your selection</string>
     <string name="refresh">Refresh</string>
+    <string name="favorites">Favorites</string>
+    <string name="rating">Rating:</string>
+    <string name="release">Release:</string>
+    <string name="genre">Genre:</string>
+    <string name="favorites_header">Here are your list of favorite movies</string>
+    <string name="reviews">Reviews</string>
+    <string name="plot">Plot</string>
+    <string name="could_not_find_reviews">Could not find reviews</string>
 
 </resources>

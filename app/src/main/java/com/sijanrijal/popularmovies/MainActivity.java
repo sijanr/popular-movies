@@ -6,6 +6,8 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.sijanrijal.popularmovies.database.Favorite;
+import com.sijanrijal.popularmovies.database.FavoriteDatabase;
 import com.sijanrijal.popularmovies.model.Genre;
 import com.sijanrijal.popularmovies.model.MovieInfo;
 import com.sijanrijal.popularmovies.model.Movie;
@@ -55,10 +59,14 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private MovieAdapter mMovieAdapter;
     private ProgressBar mProgressBar;
 
+    private FavoriteDatabase favoriteDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        favoriteDatabase = FavoriteDatabase.getInstance(getApplicationContext());
 
         ImageView mSortImageView = findViewById(R.id.sort_iv);
         mHeaderTextView = findViewById(R.id.header_tv);
@@ -103,10 +111,17 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString(CURRENT_SORT_KEY, mCurrentMoviesSort);
         super.onSaveInstanceState(outState);
     }
+
 
     private void fetchData() {
         // connect to the network and get the trending movie objects
@@ -135,6 +150,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             case R.id.sort_trending:
                 mCurrentMoviesSort = "TRENDING";
                 fetchFromNetwork(mCurrentMoviesSort);
+                return true;
+
+            case R.id.sort_favorites:
+                Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
+                startActivity(intent);
                 return true;
 
             default:
