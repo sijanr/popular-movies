@@ -45,7 +45,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener,
         MovieAdapter.ListItemClickListener {
 
-    private final static String BASE_URL = "https://api.themoviedb.org/3/";
+    public final static String BASE_URL = "https://api.themoviedb.org/3/";
     private static final String TRENDING_URL = "trending/movie/day?api_key=";
     private static final String POPULAR_URL = "movie/popular?api_key=";
     private static final String TOP_RATED_URL = "movie/top_rated?api_key=";

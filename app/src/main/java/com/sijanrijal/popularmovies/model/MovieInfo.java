@@ -3,7 +3,8 @@ package com.sijanrijal.popularmovies.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class MovieInfo implements Parcelable {
+public class MovieInfo implements Parcelable{
+    public final int id;
     public final String title;
     public final double vote_average;
     public final String release_date;
@@ -12,6 +13,7 @@ public class MovieInfo implements Parcelable {
     public final int[] genre_ids;
 
     protected MovieInfo(Parcel in) {
+        id = in.readInt();
         title = in.readString();
         vote_average = in.readDouble();
         release_date = in.readString();
@@ -39,6 +41,7 @@ public class MovieInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
         dest.writeString(title);
         dest.writeDouble(vote_average);
         dest.writeString(release_date);

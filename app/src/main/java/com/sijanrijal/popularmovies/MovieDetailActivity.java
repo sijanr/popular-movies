@@ -2,6 +2,8 @@ package com.sijanrijal.popularmovies;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 
 import android.content.Intent;
@@ -12,24 +14,35 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sijanrijal.popularmovies.database.Favorite;
 import com.sijanrijal.popularmovies.database.FavoriteDatabase;
 import com.sijanrijal.popularmovies.model.MovieInfo;
+import com.sijanrijal.popularmovies.model.Reviews;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
     private ImageView backDropImage;
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
-    private FloatingActionButton mExtendedFloatingActionButton;
+    private FloatingActionButton floatingActionButton;
 
     private ImageView mMoviePoster;
     private TextView mMovieTitle;
@@ -40,6 +53,8 @@ public class MovieDetailActivity extends AppCompatActivity {
     private TextView mRating;
 
     private FavoriteDatabase favoriteDatabase;
+    private ReviewListAdapter mAdapter;
+    private TextView errorReviewMessage;
 
     private static final String TAG = "MovieDetailActivity";
 
@@ -54,9 +69,11 @@ public class MovieDetailActivity extends AppCompatActivity {
         Toolbar mToolbar = findViewById(R.id.toolbar_detail);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        errorReviewMessage = findViewById(R.id.error_review);
+        errorReviewMessage.setVisibility(View.GONE);
 
         mCollapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
-        mExtendedFloatingActionButton = findViewById(R.id.rating_fab);
+        floatingActionButton = findViewById(R.id.rating_fab);
 
         mMoviePoster = findViewById(R.id.movie_detail_poster);
         mMovieTitle = findViewById(R.id.movie_title);
@@ -66,6 +83,13 @@ public class MovieDetailActivity extends AppCompatActivity {
         mGenre = findViewById(R.id.genre_tv);
         mReleaseDate = findViewById(R.id.release_tv);
 
+        RecyclerView recyclerView = findViewById(R.id.reviews_recycler_view);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setHasFixedSize(true);
+        mAdapter = new ReviewListAdapter(new ArrayList<Reviews.ReviewsContent>());
+        recyclerView.setAdapter(mAdapter);
+
         Intent intent = getIntent();
         if (intent != null) {
             if (intent.hasExtra("MOVIE")) {
@@ -73,7 +97,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
         }
 
-        mExtendedFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String movieTitle = mMovieTitle.getText().toString();
@@ -98,6 +122,71 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
         });
 
+
+    }
+
+    /**
+     * Get the reviews of the selected movie by making a network call to the API
+     **/
+    private void getReviews(int movieId) {
+        String URL = MainActivity.BASE_URL + "movie/" + movieId + "/reviews?api_key="
+                + getString(R.string.API_KEY);
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(URL)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                call.cancel();
+                e.printStackTrace();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        errorReviewMessage.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    call.cancel();
+                    errorReviewMessage.setVisibility(View.VISIBLE);
+                }
+
+                final String jsonString = response.body().string();
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            parseReviews(jsonString);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+            }
+        });
+
+    }
+
+    /**
+     * Parse the reviews json and populate the reviews section of the UI
+     **/
+    private void parseReviews(String jsonReviews) throws IOException {
+        Moshi moshi = new Moshi.Builder().build();
+        JsonAdapter<Reviews> jsonAdapter = moshi.adapter(Reviews.class);
+        Reviews reviews = jsonAdapter.fromJson(jsonReviews);
+        if (reviews != null && reviews.results.size() > 0) {
+            mAdapter.setReviews(reviews.results);
+        } else {
+            errorReviewMessage.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -116,6 +205,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         setDate(movie.release_date);
         setGenre(movie.genre_ids);
         mRating.setText(String.valueOf(movie.vote_average));
+        getReviews(movie.id);
 
     }
 
