@@ -17,5 +17,7 @@
     <string name="reviews">Reviews</string>
     <string name="plot">Plot</string>
     <string name="could_not_find_reviews">Could not find reviews</string>
+    <string name="error_trailers">Could not find trailers for the movie</string>
+    <string name="trailers_label">Trailers</string>
 
 </resources>

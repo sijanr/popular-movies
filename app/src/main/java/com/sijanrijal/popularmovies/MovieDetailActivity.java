@@ -1,27 +1,24 @@
 package com.sijanrijal.popularmovies;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.sijanrijal.popularmovies.database.Favorite;
 import com.sijanrijal.popularmovies.database.FavoriteDatabase;
 import com.sijanrijal.popularmovies.databinding.ActivityMovieDetailBinding;
 import com.sijanrijal.popularmovies.model.MovieInfo;
 import com.sijanrijal.popularmovies.model.Reviews;
+import com.sijanrijal.popularmovies.model.Trailer;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
@@ -40,10 +37,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MovieDetailActivity extends AppCompatActivity {
+public class MovieDetailActivity extends AppCompatActivity implements TrailersListAdapter.OnListItemClick {
 
     private FavoriteDatabase favoriteDatabase;
     private ReviewListAdapter mAdapter;
+    private TrailersListAdapter mTrailerListAdapter;
 
     private ActivityMovieDetailBinding binding;
 
@@ -66,6 +64,12 @@ public class MovieDetailActivity extends AppCompatActivity {
         binding.included.reviewsRecyclerView.setHasFixedSize(true);
         mAdapter = new ReviewListAdapter(new ArrayList<Reviews.ReviewsContent>());
         binding.included.reviewsRecyclerView.setAdapter(mAdapter);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        binding.included.trailersRecyclerView.setLayoutManager(linearLayoutManager);
+        binding.included.trailersRecyclerView.setHasFixedSize(true);
+        mTrailerListAdapter = new TrailersListAdapter(new ArrayList<Trailer.TrailerLink>(), this);
+        binding.included.trailersRecyclerView.setAdapter(mTrailerListAdapter);
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -105,13 +109,19 @@ public class MovieDetailActivity extends AppCompatActivity {
     /**
      * Get the reviews of the selected movie by making a network call to the API
      **/
-    private void getReviews(int movieId) {
-        String URL = MainActivity.BASE_URL + "movie/" + movieId + "/reviews?api_key="
-                + getString(R.string.API_KEY);
+    private void getReviewsAndTrailers(int movieId, final String resultType) {
+        StringBuilder URL = new StringBuilder();
+        URL.append(MainActivity.BASE_URL + "movie/").append(movieId);
+        if(resultType.equals("REVIEWS")) {
+            URL.append("/reviews");
+        } else {
+            URL.append("/videos");
+        }
+        URL.append("?api_key=").append(getString(R.string.API_KEY));
 
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url(URL)
+                .url(URL.toString())
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -122,7 +132,11 @@ public class MovieDetailActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        binding.included.errorReview.setVisibility(View.VISIBLE);
+                        if(resultType.equals("REVIEWS")) {
+                            binding.included.errorReview.setVisibility(View.VISIBLE);
+                        } else {
+                            binding.included.errorTrailers.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
             }
@@ -131,7 +145,11 @@ public class MovieDetailActivity extends AppCompatActivity {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     call.cancel();
-                    binding.included.errorReview.setVisibility(View.VISIBLE);
+                    if(resultType.equals("REVIEWS")) {
+                        binding.included.errorReview.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.included.errorTrailers.setVisibility(View.VISIBLE);
+                    }
                 }
 
                 final String jsonString = response.body().string();
@@ -140,7 +158,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            parseReviews(jsonString);
+                            parseReviews(jsonString, resultType);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -152,17 +170,34 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     }
 
+
     /**
      * Parse the reviews json and populate the reviews section of the UI
      **/
-    private void parseReviews(String jsonReviews) throws IOException {
+    private void parseReviews(String jsonReviews, String resultType) throws IOException {
         Moshi moshi = new Moshi.Builder().build();
-        JsonAdapter<Reviews> jsonAdapter = moshi.adapter(Reviews.class);
-        Reviews reviews = jsonAdapter.fromJson(jsonReviews);
-        if (reviews != null && reviews.results.size() > 0) {
-            mAdapter.setReviews(reviews.results);
+        if(resultType.equals("REVIEWS")) {
+            JsonAdapter<Reviews> jsonAdapter = moshi.adapter(Reviews.class);
+            Reviews reviews = jsonAdapter.fromJson(jsonReviews);
+            if (reviews != null && reviews.results.size() > 0) {
+                mAdapter.setReviews(reviews.results);
+            } else {
+                binding.included.errorReview.setVisibility(View.VISIBLE);
+            }
         } else {
-            binding.included.errorReview.setVisibility(View.VISIBLE);
+            JsonAdapter<Trailer> jsonAdapter = moshi.adapter(Trailer.class);
+            Trailer trailer = jsonAdapter.fromJson(jsonReviews);
+            if (trailer != null && trailer.results.size() > 0) {
+                List<Trailer.TrailerLink> trailerList = new ArrayList<>();
+                for (Trailer.TrailerLink trailerInfo : trailer.results) {
+                    if(trailerInfo.type.equals("Trailer")) {
+                        trailerList.add(trailerInfo);
+                    }
+                }
+                mTrailerListAdapter.setTrailers(trailerList);
+            } else {
+                binding.included.errorTrailers.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -182,7 +217,8 @@ public class MovieDetailActivity extends AppCompatActivity {
         setDate(movie.release_date);
         setGenre(movie.genre_ids);
         binding.included.ratingTv.setText(String.valueOf(movie.vote_average));
-        getReviews(movie.id);
+        getReviewsAndTrailers(movie.id, "REVIEWS");
+        getReviewsAndTrailers(movie.id, "TRAILERS");
 
     }
 
@@ -218,6 +254,19 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
 
             binding.included.genreTv.setText(movieGenre.toString());
+        }
+    }
+
+    @Override
+    public void onClick(String key) {
+        Uri uri = new Uri.Builder().scheme("https")
+                .authority("www.youtube.com")
+                .appendPath("watch")
+                .appendPath(key)
+                .build();
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        if(intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
         }
     }
 }
