@@ -6,6 +6,9 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,6 +23,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.sijanrijal.popularmovies.database.Favorite;
+import com.sijanrijal.popularmovies.database.FavoriteDatabase;
+import com.sijanrijal.popularmovies.databinding.ActivityMainBinding;
+import com.sijanrijal.popularmovies.databinding.ContentMainBinding;
 import com.sijanrijal.popularmovies.model.Genre;
 import com.sijanrijal.popularmovies.model.MovieInfo;
 import com.sijanrijal.popularmovies.model.Movie;
@@ -41,7 +48,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener,
         MovieAdapter.ListItemClickListener {
 
-    private final static String BASE_URL = "https://api.themoviedb.org/3/";
+    public final static String BASE_URL = "https://api.themoviedb.org/3/";
     private static final String TRENDING_URL = "trending/movie/day?api_key=";
     private static final String POPULAR_URL = "movie/popular?api_key=";
     private static final String TOP_RATED_URL = "movie/top_rated?api_key=";
@@ -51,32 +58,32 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private static final String TAG = "MainActivity";
     private String mCurrentMoviesSort;
 
-    private TextView mHeaderTextView;
     private MovieAdapter mMovieAdapter;
-    private ProgressBar mProgressBar;
+
+    private FavoriteDatabase favoriteDatabase;
+
+    private ActivityMainBinding mainBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        mainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
 
-        ImageView mSortImageView = findViewById(R.id.sort_iv);
-        mHeaderTextView = findViewById(R.id.header_tv);
-        mProgressBar = findViewById(R.id.progressbar);
-        Toolbar mToolbar = findViewById(R.id.main_toolbar);
-        setSupportActionBar(mToolbar);
+        favoriteDatabase = FavoriteDatabase.getInstance(getApplicationContext());
 
-        RecyclerView mRecyclerView = findViewById(R.id.recycler_view);
+
+        setSupportActionBar(mainBinding.mainToolbar);
+
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2,
                 GridLayoutManager.VERTICAL, false);
-        mRecyclerView.setLayoutManager(gridLayoutManager);
-        mRecyclerView.setHasFixedSize(true);
+        mainBinding.included.recyclerView.setLayoutManager(gridLayoutManager);
+        mainBinding.included.recyclerView.setHasFixedSize(true);
         mMovieAdapter = new MovieAdapter(new ArrayList<MovieInfo>(), this);
-        mRecyclerView.setAdapter(mMovieAdapter);
+        mainBinding.included.recyclerView.setAdapter(mMovieAdapter);
 
 
         //display the menu when the user wants to change the change the way movies in the list are sorted
-        mSortImageView.setOnClickListener(new View.OnClickListener() {
+        mainBinding.included.sortIv.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("RestrictedApi")
             @Override
             public void onClick(View v) {
@@ -103,15 +110,22 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putString(CURRENT_SORT_KEY, mCurrentMoviesSort);
         super.onSaveInstanceState(outState);
     }
 
+
     private void fetchData() {
         // connect to the network and get the trending movie objects
-        mProgressBar.setVisibility(View.VISIBLE);
-        mHeaderTextView.setText(getString(R.string.header_text_main));
+        mainBinding.included.progressbar.setVisibility(View.VISIBLE);
+        mainBinding.included.headerTv.setText(getString(R.string.header_text_main));
         fetchGenre();
         fetchFromNetwork(mCurrentMoviesSort);
 
@@ -135,6 +149,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             case R.id.sort_trending:
                 mCurrentMoviesSort = "TRENDING";
                 fetchFromNetwork(mCurrentMoviesSort);
+                return true;
+
+            case R.id.sort_favorites:
+                Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
+                startActivity(intent);
                 return true;
 
             default:
@@ -177,8 +196,8 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mProgressBar.setVisibility(View.INVISIBLE);
-                        mHeaderTextView.setText(R.string.connection_error);
+                        mainBinding.included.progressbar.setVisibility(View.INVISIBLE);
+                        mainBinding.included.headerTv.setText(R.string.connection_error);
                     }
                 });
             }
@@ -194,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mProgressBar.setVisibility(View.INVISIBLE);
+                        mainBinding.included.progressbar.setVisibility(View.INVISIBLE);
                         parseFromJson(jsonString, sortType);
                     }
                 });

@@ -7,9 +7,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.sijanrijal.popularmovies.databinding.ListItemViewBinding;
 import com.sijanrijal.popularmovies.model.MovieInfo;
 
 import java.util.List;
@@ -34,9 +36,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_view, parent, false);
-        return new ViewHolder(view);
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        ListItemViewBinding listItemViewBinding = DataBindingUtil.inflate(
+                layoutInflater, R.layout.list_item_view, parent, false
+        );
+        return new ViewHolder(listItemViewBinding);
 
     }
 
@@ -51,13 +55,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        private ImageView mMoviePoster;
+        private final ListItemViewBinding binding;
         private Context context;
 
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            mMoviePoster = itemView.findViewById(R.id.movie_poster_iv);
+        public ViewHolder(@NonNull ListItemViewBinding listItemViewBinding) {
+            super(listItemViewBinding.getRoot());
+            binding = listItemViewBinding;
             context = itemView.getContext();
 
             itemView.setOnClickListener(this);
@@ -65,7 +68,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
         public void setImage() {
             String imageURL = IMAGE_URL + mMoviesList.get(getAdapterPosition()).poster_path;
-            Glide.with(context).load(imageURL).into(mMoviePoster);
+            Glide.with(context).load(imageURL).into(binding.moviePosterIv);
         }
 
         @Override
