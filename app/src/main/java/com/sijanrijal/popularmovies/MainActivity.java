@@ -10,6 +10,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
@@ -54,11 +55,19 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private static final String TOP_RATED_URL = "movie/top_rated?api_key=";
 
     private static final String CURRENT_SORT_KEY = "SORT";
+    public static final String TRENDING_MOVIES = "TRENDING";
+    public static final String POPULAR_MOVIES = "POPULAR";
+    public static final String TOP_RATED_MOVIES = "TOP RATED";
+    public static final String FAVORITE_MOVIES = "FAVORITE";
     private static Genre moviesGenre;
     private static final String TAG = "MainActivity";
     private String mCurrentMoviesSort;
 
+    //Adapter to display the movies from the sort selection
     private MovieAdapter mMovieAdapter;
+
+    //Adapter to display favorite movies
+    private FavoritesListAdapter mFavoriteListAdapter;
 
     private FavoriteDatabase favoriteDatabase;
 
@@ -67,19 +76,19 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mainBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
+        mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         favoriteDatabase = FavoriteDatabase.getInstance(getApplicationContext());
 
 
         setSupportActionBar(mainBinding.mainToolbar);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2,
-                GridLayoutManager.VERTICAL, false);
-        mainBinding.included.recyclerView.setLayoutManager(gridLayoutManager);
+
         mainBinding.included.recyclerView.setHasFixedSize(true);
         mMovieAdapter = new MovieAdapter(new ArrayList<MovieInfo>(), this);
-        mainBinding.included.recyclerView.setAdapter(mMovieAdapter);
+        mFavoriteListAdapter = new FavoritesListAdapter();
+        setupRecyclerView(TRENDING_MOVIES);
+        setupViewModel();
 
 
         //display the menu when the user wants to change the change the way movies in the list are sorted
@@ -101,12 +110,14 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(CURRENT_SORT_KEY)) {
-                mCurrentMoviesSort = savedInstanceState.getString(CURRENT_SORT_KEY, "TRENDING");
+                mCurrentMoviesSort = savedInstanceState.getString(CURRENT_SORT_KEY, TRENDING_MOVIES);
             }
         } else {
-            mCurrentMoviesSort = "TRENDING";
+            mCurrentMoviesSort = TRENDING_MOVIES;
         }
+
         fetchData();
+
     }
 
     @Override
@@ -121,11 +132,30 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         super.onSaveInstanceState(outState);
     }
 
+    /**
+     * Setup viewmodel to query database every time it's changed
+     **/
+    private void setupViewModel() {
+        FavoritesViewModel viewModel = ViewModelProviders.of(this).get(FavoritesViewModel.class);
 
+        //observe the change in the database
+        viewModel.getFavoriteMovies().observe(this, new Observer<List<Favorite>>() {
+            @Override
+            public void onChanged(List<Favorite> movies) {
+                Log.d(TAG, "onChanged: Receiving database update from LiveData");
+                mFavoriteListAdapter.setFavoriteMovies(movies);
+            }
+        });
+
+    }
+
+
+    /**
+     * Fetch genre and list of movies from user-provided sort type using the Internet
+     **/
     private void fetchData() {
         // connect to the network and get the trending movie objects
         mainBinding.included.progressbar.setVisibility(View.VISIBLE);
-        mainBinding.included.headerTv.setText(getString(R.string.header_text_main));
         fetchGenre();
         fetchFromNetwork(mCurrentMoviesSort);
 
@@ -137,27 +167,47 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sort_popular:
-                mCurrentMoviesSort = "POPULAR";
+                mCurrentMoviesSort = POPULAR_MOVIES;
                 fetchFromNetwork(mCurrentMoviesSort);
+                setupRecyclerView(mCurrentMoviesSort);
                 return true;
 
             case R.id.sort_top_rated:
-                mCurrentMoviesSort = "TOP RATED";
+                mCurrentMoviesSort = TOP_RATED_MOVIES;
                 fetchFromNetwork(mCurrentMoviesSort);
+                setupRecyclerView(TOP_RATED_MOVIES);
                 return true;
 
             case R.id.sort_trending:
-                mCurrentMoviesSort = "TRENDING";
+                mCurrentMoviesSort = TRENDING_MOVIES;
                 fetchFromNetwork(mCurrentMoviesSort);
+                setupRecyclerView(TRENDING_MOVIES);
                 return true;
 
             case R.id.sort_favorites:
-                Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
-                startActivity(intent);
+                mainBinding.included.headerTv.setText(getString(R.string.favorites_header));
+                setupRecyclerView(FAVORITE_MOVIES);
                 return true;
 
             default:
                 return false;
+        }
+    }
+
+
+    /**
+     * Set RecyclerView's layout manager and adapter
+     **/
+    private void setupRecyclerView(String sortBy) {
+        if (sortBy.equals(FAVORITE_MOVIES)) {
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+            mainBinding.included.recyclerView.setLayoutManager(linearLayoutManager);
+            mainBinding.included.recyclerView.setAdapter(mFavoriteListAdapter);
+        } else {
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2,
+                    GridLayoutManager.VERTICAL, false);
+            mainBinding.included.recyclerView.setLayoutManager(gridLayoutManager);
+            mainBinding.included.recyclerView.setAdapter(mMovieAdapter);
         }
     }
 
@@ -170,13 +220,13 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(BASE_URL);
         switch (sortType) {
-            case "TRENDING":
+            case TRENDING_MOVIES:
                 stringBuilder.append(TRENDING_URL);
                 break;
-            case "POPULAR":
+            case POPULAR_MOVIES:
                 stringBuilder.append(POPULAR_URL);
                 break;
-            case "TOP RATED":
+            case TOP_RATED_MOVIES:
                 stringBuilder.append(TOP_RATED_URL);
                 break;
         }
@@ -290,6 +340,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         try {
             Movie movie = jsonAdapter.fromJson(jsonString);
             if (movie != null) {
+                mainBinding.included.headerTv.setText(getString(R.string.header_text_main));
                 mMovieAdapter.setMoviesList(movie.results);
             }
         } catch (IOException e) {
