@@ -88,13 +88,21 @@ public class MovieDetailActivity extends AppCompatActivity implements TrailersLi
                 AppExecutors.getInstance().diskIO().execute(new Runnable() {
                     @Override
                     public void run() {
-                        favoriteDatabase.favoritesDAO().insertMovie(
-                                new Favorite(movieTitle, movieGenre, release, rating)
-                        );
+                        final String message;
+                        String favorite = favoriteDatabase.favoritesDAO().getMovie(movieTitle);
+                        if(favorite == null) {
+                            favoriteDatabase.favoritesDAO().insertMovie(
+                                    new Favorite(movieTitle, movieGenre, release, rating)
+                            );
+                            message="Added to your favorites";
+                        } else {
+                            message = "Already in your favorites";
+                        }
+
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getApplicationContext(), "Added to your favorites", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 
                             }
                         });

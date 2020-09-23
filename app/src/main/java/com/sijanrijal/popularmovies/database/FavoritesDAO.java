@@ -19,4 +19,7 @@ public interface FavoritesDAO {
 
     @Delete
     void deleteFavorite(Favorite movie);
+
+    @Query("SELECT movie_title FROM favorite WHERE movie_title = :movieTitle")
+    String getMovie(String movieTitle);
 }
