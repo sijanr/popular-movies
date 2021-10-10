@@ -43,13 +43,6 @@ fun HomeScreen(modifier: Modifier = Modifier, viewModel: MainViewModel) {
     viewModel.fetchNowPlayingMovies()
     val scrollState = rememberScrollState()
     Column(modifier.scrollable(orientation = Orientation.Vertical, state = scrollState)) {
-        Text(
-            text = "Trending Movies",
-            style = MaterialTheme.typography.h3,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 2.dp),
-            color = MaterialTheme.colors.onSurface
-        )
         if (movieListStateValue is MoviesUiState.Success) {
             NowPlayingMovieScreen(movieList = movieListStateValue.moviesList)
         }
@@ -99,7 +92,7 @@ fun NowPlayingMovieScreen(modifier: Modifier = Modifier, movieList: List<Movie>)
             FullSizeMoviePoster(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(0.804f),
+                    .aspectRatio(0.64f),
                 url = movie.movieBackDropImagePath,
                 alpha = opacity
             )
@@ -110,6 +103,12 @@ fun NowPlayingMovieScreen(modifier: Modifier = Modifier, movieList: List<Movie>)
                 .align(Alignment.BottomEnd)
                 .fillMaxWidth()
                 .fillMaxHeight(0.4f)
+        )
+        Spacer(
+            modifier = Modifier
+                .background(brush = Brush.verticalGradient(listOf(MaterialTheme.colors.background.copy(alpha = 0.4f), Color.Transparent)))
+                .fillMaxWidth()
+                .fillMaxHeight(0.25f)
         )
         movieList.forEachIndexed { index, movie ->
             val center = screenWidth * 0.6f * index
@@ -125,6 +124,13 @@ fun NowPlayingMovieScreen(modifier: Modifier = Modifier, movieList: List<Movie>)
                 posterUrl = movie.posterUrl
             )
         }
+        Text(
+            text = "Now Playing",
+            style = MaterialTheme.typography.h3,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 2.dp),
+            color = MaterialTheme.colors.onSurface
+        )
     }
 }
 
@@ -161,7 +167,6 @@ fun FullSizeMoviePoster(modifier: Modifier = Modifier, url: String?, alpha: Floa
         targetValue = alpha,
         animationSpec = tween(400, easing = LinearEasing)
     )
-//    if (url!=null) {
     Image(
         painter = rememberImagePainter(imageUrl + "original$url"),
         contentDescription = null,
@@ -169,9 +174,6 @@ fun FullSizeMoviePoster(modifier: Modifier = Modifier, url: String?, alpha: Floa
         contentScale = ContentScale.Crop,
         alpha = animateAlpha
     )
-//    } else {
-//        Box(modifier = modifier.background(color = MaterialTheme.colors.surface).alpha(animateAlpha))
-//    }
 }
 
 @Composable
