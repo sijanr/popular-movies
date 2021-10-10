@@ -6,9 +6,11 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
@@ -31,7 +33,17 @@ fun PopularMoviesTheme(content: @Composable (innerPadding: PaddingValues) -> Uni
         Scaffold(
             bottomBar = {
                 PopularMoviesBottomAppbar()
-            }
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = {}, shape = CircleShape) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = null
+                    )
+                }
+            },
+            floatingActionButtonPosition = FabPosition.Center,
+            isFloatingActionButtonDocked = true
         ) {
             content(it)
         }
@@ -50,14 +62,16 @@ fun PopularMoviesBottomAppbar() {
                     topEndPercent = 20
                 )
             ),
-        backgroundColor = MaterialTheme.colors.background
+        backgroundColor = MaterialTheme.colors.background,
+        cutoutShape = CircleShape,
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
     ) {
         var currentSelection by remember {
             mutableStateOf(-1)
         }
         Row(modifier = Modifier
             .background(MaterialTheme.colors.background)
-            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             for ((index, pair) in bottomBarItems.withIndex()) {
                 val (text, icon) = pair
                 val isIconClicked = currentSelection==index
