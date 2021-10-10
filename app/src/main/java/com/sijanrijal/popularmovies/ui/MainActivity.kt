@@ -23,7 +23,7 @@ class MainActivity: AppCompatActivity() {
         val viewModel: MainViewModel = ViewModelProvider(this, MainViewModelFactory(MovieRepositoryImpl(this))).get(MainViewModel::class.java)
         setContent {
             PopularMoviesTheme {
-                HomeScreen(modifier = Modifier.padding(it).fillMaxSize(), viewModel = viewModel)
+                HomeScreen(viewModel = viewModel, modifier = Modifier.padding(top = it.calculateTopPadding()).fillMaxSize())
             }
         }
     }

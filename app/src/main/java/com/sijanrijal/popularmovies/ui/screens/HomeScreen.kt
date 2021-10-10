@@ -1,6 +1,5 @@
 package com.sijanrijal.popularmovies.ui.screens
 
-import android.os.Build
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -10,21 +9,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
@@ -41,8 +35,6 @@ import com.sijanrijal.popularmovies.viewmodel.MoviesUiState
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-data class Movie(val name: String, val url: String)
-
 @ExperimentalCoilApi
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier, viewModel: MainViewModel) {
@@ -55,8 +47,8 @@ fun HomeScreen(modifier: Modifier = Modifier, viewModel: MainViewModel) {
             text = "Trending Movies",
             style = MaterialTheme.typography.h3,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(16.dp),
-            color = Color.White
+            modifier = Modifier.padding(bottom = 2.dp),
+            color = MaterialTheme.colors.onSurface
         )
         if (movieListStateValue is MoviesUiState.Success) {
             NowPlayingMovieScreen(movieList = movieListStateValue.moviesList)
@@ -107,7 +99,7 @@ fun NowPlayingMovieScreen(modifier: Modifier = Modifier, movieList: List<Movie>)
             FullSizeMoviePoster(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(0.774f),
+                    .aspectRatio(0.804f),
                 url = movie.movieBackDropImagePath,
                 alpha = opacity
             )
@@ -126,7 +118,7 @@ fun NowPlayingMovieScreen(modifier: Modifier = Modifier, movieList: List<Movie>)
             MovieContent(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .offset(x = offsetState.dp + center, y = lerp((-35).dp, 80.dp, distanceFromCenter))
+                    .offset(x = offsetState.dp + center, y = lerp((-75).dp, 80.dp, distanceFromCenter))
                     .width(movieContentWidthRatio)
                     .background(Color.Transparent),
                 movieName = movie.title,
