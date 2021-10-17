@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 
 class MainViewModel(private val movieRepository: MovieRepository): ViewModel() {
 
-    private val _nowPlayingMovies = MutableStateFlow(MoviesUiState.Success(emptyList()))
+    private val _nowPlayingMovies = MutableStateFlow(MoviesUiState(emptyList()))
     val nowPlayingMovies: StateFlow<MoviesUiState>
         get() = _nowPlayingMovies
 
@@ -36,14 +36,13 @@ class MainViewModel(private val movieRepository: MovieRepository): ViewModel() {
         when (response) {
             is Result.Success -> {
                 val filterList = response.result.movies.filterNotNull()
-                _nowPlayingMovies.value = MoviesUiState.Success(filterList)
+                _nowPlayingMovies.value = MoviesUiState(filterList)
             }
             is Result.Failure -> _errorFetchingMovies.value = true
         }
     }
 }
 
-sealed class MoviesUiState {
-    data class Success(val moviesList: List<Movie>): MoviesUiState()
-    object Error: MoviesUiState()
-}
+data class MoviesUiState(
+    val moviesList: List<Movie>
+)

@@ -8,7 +8,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -28,45 +27,35 @@ import androidx.compose.ui.unit.lerp
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.transform.RoundedCornersTransformation
-import com.sijanrijal.popularmovies.network.Movie
 import com.sijanrijal.popularmovies.network.imageUrl
 import com.sijanrijal.popularmovies.viewmodel.MainViewModel
-import com.sijanrijal.popularmovies.viewmodel.MoviesUiState
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @ExperimentalCoilApi
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, viewModel: MainViewModel) {
-    val movieListState = viewModel.nowPlayingMovies.collectAsState()
-    val movieListStateValue = movieListState.value
+fun NowPlayingMovieScreen(modifier: Modifier = Modifier, viewModel: MainViewModel) {
+    val movieList = viewModel.nowPlayingMovies.collectAsState().value.moviesList
     viewModel.fetchNowPlayingMovies()
-    val scrollState = rememberScrollState()
-    Column(modifier.scrollable(orientation = Orientation.Vertical, state = scrollState)) {
-        if (movieListStateValue is MoviesUiState.Success) {
-            NowPlayingMovieScreen(movieList = movieListStateValue.moviesList)
-        }
-    }
-}
-
-@ExperimentalCoilApi
-@Composable
-fun NowPlayingMovieScreen(modifier: Modifier = Modifier, movieList: List<Movie>) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val movieContentWidthRatio = screenWidth * 0.674f
     var offsetState by remember {
         mutableStateOf(0f)
     }
     val scrollableController = rememberScrollableState {
-        if (offsetState + it < -movieList.lastIndex * screenWidth.value * 0.6f) {
-            offsetState = -movieList.lastIndex * screenWidth.value * 0.6f
-            0f
-        } else if (offsetState + it > 0) {
-            offsetState = 0f
-            0f
-        } else {
-            offsetState += it
-            it
+        when {
+            offsetState + it < -movieList.lastIndex * screenWidth.value * 0.6f -> {
+                offsetState = -movieList.lastIndex * screenWidth.value * 0.6f
+                0f
+            }
+            offsetState + it > 0 -> {
+                offsetState = 0f
+                0f
+            }
+            else -> {
+                offsetState += it
+                it
+            }
         }
     }
     val indexFraction = abs(offsetState) / (screenWidth.value * 0.6f)
@@ -106,7 +95,15 @@ fun NowPlayingMovieScreen(modifier: Modifier = Modifier, movieList: List<Movie>)
         )
         Spacer(
             modifier = Modifier
-                .background(brush = Brush.verticalGradient(listOf(MaterialTheme.colors.background.copy(alpha = 0.4f), Color.Transparent)))
+                .background(
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.colors.background.copy(
+                                alpha = 0.4f
+                            ), Color.Transparent
+                        )
+                    )
+                )
                 .fillMaxWidth()
                 .fillMaxHeight(0.25f)
         )
@@ -117,7 +114,10 @@ fun NowPlayingMovieScreen(modifier: Modifier = Modifier, movieList: List<Movie>)
             MovieContent(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .offset(x = offsetState.dp + center, y = lerp((-75).dp, 80.dp, distanceFromCenter))
+                    .offset(
+                        x = offsetState.dp + center,
+                        y = lerp((-75).dp, 80.dp, distanceFromCenter)
+                    )
                     .width(movieContentWidthRatio)
                     .background(Color.Transparent),
                 movieName = movie.title,
@@ -147,10 +147,15 @@ fun FractionalRectangle(startFraction: Float, endFraction: Float) = object : Sha
         )
 }
 
+@ExperimentalCoilApi
 @Composable
 fun MovieContent(modifier: Modifier = Modifier, movieName: String?, posterUrl: String?) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        SmallMoviePoster(url = posterUrl)
+        SmallMoviePoster(
+            url = posterUrl, modifier = Modifier
+                .width(180.dp)
+                .aspectRatio(0.627f)
+        )
         Text(
             text = movieName ?: "Not Available",
             style = MaterialTheme.typography.body2,
@@ -176,13 +181,12 @@ fun FullSizeMoviePoster(modifier: Modifier = Modifier, url: String?, alpha: Floa
     )
 }
 
+@ExperimentalCoilApi
 @Composable
 fun SmallMoviePoster(modifier: Modifier = Modifier, url: String?) {
     Image(
-        painter = rememberImagePainter(imageUrl+"w500$url", builder = {
+        painter = rememberImagePainter(imageUrl + "w500$url", builder = {
             transformations(RoundedCornersTransformation(88.dp.value))
-        }), contentDescription = null, modifier = Modifier
-            .width(180.dp)
-            .aspectRatio(0.627f)
+        }), contentDescription = null, modifier = modifier
     )
 }

@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 
@@ -28,7 +29,7 @@ private val bottomBarItems = listOf(
 
 @ExperimentalAnimationApi
 @Composable
-fun PopularMoviesTheme(content: @Composable (innerPadding: PaddingValues) -> Unit) {
+fun AppContainer(content: @Composable (innerPadding: PaddingValues) -> Unit) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             bottomBar = {
@@ -58,8 +59,8 @@ fun PopularMoviesBottomAppbar() {
             .fillMaxWidth()
             .clip(
                 RoundedCornerShape(
-                    topStartPercent = 20,
-                    topEndPercent = 20
+                    topStartPercent = 30,
+                    topEndPercent = 30
                 )
             ),
         backgroundColor = MaterialTheme.colors.background,
@@ -67,7 +68,7 @@ fun PopularMoviesBottomAppbar() {
         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
     ) {
         var currentSelection by remember {
-            mutableStateOf(-1)
+            mutableStateOf(0)
         }
         Row(modifier = Modifier
             .background(MaterialTheme.colors.background)
@@ -83,23 +84,36 @@ fun PopularMoviesBottomAppbar() {
                 val animateIconTint by animateColorAsState(
                     targetValue = if (isIconClicked) MaterialTheme.colors.onBackground else Color.Gray
                 )
-                Row(
+                BottomAppBarContent(
+                    text = text,
+                    isSelected = currentSelection == index,
+                    imageVector = icon,
+                    iconTintColor = animateIconTint,
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
                         .background(color = animateBottomAppBarContentBackground)
                         .padding(end = 28.dp)
-                        .animateContentSize(),
-                    verticalAlignment = Alignment.CenterVertically
+                        .animateContentSize()
                 ) {
-
-                    IconButton(onClick = { currentSelection = index }) {
-                        Icon(imageVector = icon, contentDescription = null, tint = animateIconTint)
-                    }
-                    AnimatedVisibility(visible = isIconClicked) {
-                        Text(text = text, color = MaterialTheme.colors.onBackground)
-                    }
+                    currentSelection=index
                 }
             }
+        }
+    }
+}
+
+@ExperimentalAnimationApi
+@Composable
+fun BottomAppBarContent(modifier: Modifier = Modifier, text: String, isSelected: Boolean, imageVector: ImageVector, iconTintColor: Color, onIconClick: () -> Unit) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = { onIconClick() }) {
+            Icon(imageVector = imageVector, contentDescription = null, tint = iconTintColor)
+        }
+        AnimatedVisibility(visible = isSelected) {
+            Text(text = text, color = MaterialTheme.colors.onBackground)
         }
     }
 }
