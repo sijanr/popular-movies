@@ -18,23 +18,30 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.transform.RoundedCornersTransformation
 import com.sijanrijal.popularmovies.network.imageUrl
+import com.sijanrijal.popularmovies.repository.MovieRepositoryImpl
 import com.sijanrijal.popularmovies.viewmodel.MainViewModel
+import com.sijanrijal.popularmovies.viewmodel.MainViewModelFactory
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @ExperimentalCoilApi
 @Composable
-fun NowPlayingMovieScreen(modifier: Modifier = Modifier, viewModel: MainViewModel) {
+fun HomeScreen(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(MovieRepositoryImpl(context)))
     val movieList = viewModel.nowPlayingMovies.collectAsState().value.moviesList
     viewModel.fetchNowPlayingMovies()
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
