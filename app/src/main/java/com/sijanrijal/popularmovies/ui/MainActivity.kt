@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import coil.annotation.ExperimentalCoilApi
 import com.sijanrijal.popularmovies.repository.MovieRepositoryImpl
-import com.sijanrijal.popularmovies.ui.screens.NowPlayingMovieScreen
+import com.sijanrijal.popularmovies.ui.screens.HomeScreen
 import com.sijanrijal.popularmovies.ui.screens.common.AppContainer
 import com.sijanrijal.popularmovies.viewmodel.MainViewModel
 import com.sijanrijal.popularmovies.viewmodel.MainViewModelFactory
@@ -21,12 +21,11 @@ class MainActivity: AppCompatActivity() {
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel: MainViewModel = ViewModelProvider(this, MainViewModelFactory(MovieRepositoryImpl(this))).get(MainViewModel::class.java)
         setContent {
-            AppContainer {
-                NowPlayingMovieScreen(viewModel = viewModel, modifier = Modifier
-                    .padding(bottom = it.calculateBottomPadding()/2)
-                    .fillMaxSize())
+            AppContainer { paddingValues, navControler ->
+                AppNavigation(modifier = Modifier
+                    .padding(bottom = paddingValues.calculateBottomPadding()/2)
+                    .fillMaxSize(), navControler)
             }
         }
     }

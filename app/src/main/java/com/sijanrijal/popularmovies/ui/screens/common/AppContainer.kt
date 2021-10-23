@@ -20,6 +20,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.sijanrijal.popularmovies.ui.Screen
 
 
 private val bottomBarItems = listOf(
@@ -29,11 +32,17 @@ private val bottomBarItems = listOf(
 
 @ExperimentalAnimationApi
 @Composable
-fun AppContainer(content: @Composable (innerPadding: PaddingValues) -> Unit) {
+fun AppContainer(content: @Composable (innerPadding: PaddingValues, navController: NavHostController) -> Unit) {
+    val navController = rememberNavController()
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             bottomBar = {
-                PopularMoviesBottomAppbar()
+                PopularMoviesBottomAppbar {bottomAppBarContentText ->
+                    when(bottomAppBarContentText) {
+                        "Home" -> navController.navigate(Screen.Home.route)
+                        "Search" -> navController.navigate(Screen.Search.route)
+                    }
+                }
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = {}, shape = CircleShape) {
@@ -46,14 +55,14 @@ fun AppContainer(content: @Composable (innerPadding: PaddingValues) -> Unit) {
             floatingActionButtonPosition = FabPosition.Center,
             isFloatingActionButtonDocked = true
         ) {
-            content(it)
+            content(it, navController)
         }
     }
 }
 
 @ExperimentalAnimationApi
 @Composable
-fun PopularMoviesBottomAppbar() {
+fun PopularMoviesBottomAppbar(onBottomBarContentClicked: (contentText: String) -> Unit ) {
     BottomAppBar(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,6 +104,9 @@ fun PopularMoviesBottomAppbar() {
                         .padding(end = 28.dp)
                         .animateContentSize()
                 ) {
+                    if (currentSelection!=index) {
+                        onBottomBarContentClicked(text)
+                    }
                     currentSelection=index
                 }
             }
