@@ -26,10 +26,6 @@ android {
         }
     }
 
-    dataBinding {
-        enabled = true
-    }
-
     // Set both the Java and Kotlin compilers to target Java 8.
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
