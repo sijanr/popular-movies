@@ -4,10 +4,6 @@
     <string name="top_rated">Top Rated</string>
     <string name="movie">Trending</string>
     <string name="sort_by">Sort by:</string>
-
-
-    <string name="API_KEY"><!--   YOUR API KEY HERE --></string>
-
     <string name="connection_error">Failed to connect. Please try again later.</string>
     <string name="header_text_main">Here are the movies based on your selection</string>
     <string name="refresh">Refresh</string>

@@ -25,23 +25,18 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import coil.transform.RoundedCornersTransformation
-import com.sijanrijal.popularmovies.network.imageUrl
-import com.sijanrijal.popularmovies.repository.MovieRepositoryImpl
+import com.sijanrijal.popularmovies.network.UrlProvider
 import com.sijanrijal.popularmovies.viewmodel.MainViewModel
-import com.sijanrijal.popularmovies.viewmodel.MainViewModelFactory
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @ExperimentalCoilApi
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(modifier: Modifier = Modifier, viewModel: MainViewModel, urlProvider: UrlProvider) {
     val context = LocalContext.current
-    val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(MovieRepositoryImpl(context)))
     val movieList = viewModel.nowPlayingMovies.collectAsState().value.moviesList
     viewModel.fetchNowPlayingMovies()
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -90,7 +85,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .aspectRatio(0.64f),
                 url = movie.movieBackDropImagePath,
-                alpha = opacity
+                alpha = opacity,
+                urlProvider = urlProvider
             )
         }
         Spacer(
@@ -128,7 +124,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     .width(movieContentWidthRatio)
                     .background(Color.Transparent),
                 movieName = movie.title,
-                posterUrl = movie.posterUrl
+                posterUrl = movie.posterUrl,
+                urlProvider = urlProvider
             )
         }
         Text(
@@ -156,12 +153,13 @@ fun FractionalRectangle(startFraction: Float, endFraction: Float) = object : Sha
 
 @ExperimentalCoilApi
 @Composable
-fun MovieContent(modifier: Modifier = Modifier, movieName: String?, posterUrl: String?) {
+fun MovieContent(modifier: Modifier = Modifier, movieName: String?, posterUrl: String?, urlProvider: UrlProvider) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         SmallMoviePoster(
             url = posterUrl, modifier = Modifier
                 .width(180.dp)
-                .aspectRatio(0.627f)
+                .aspectRatio(0.627f),
+            urlProvider = urlProvider
         )
         Text(
             text = movieName ?: "Not Available",
@@ -174,13 +172,13 @@ fun MovieContent(modifier: Modifier = Modifier, movieName: String?, posterUrl: S
 
 @ExperimentalCoilApi
 @Composable
-fun FullSizeMoviePoster(modifier: Modifier = Modifier, url: String?, alpha: Float) {
+fun FullSizeMoviePoster(modifier: Modifier = Modifier, url: String?, alpha: Float, urlProvider: UrlProvider) {
     val animateAlpha by animateFloatAsState(
         targetValue = alpha,
         animationSpec = tween(400, easing = LinearEasing)
     )
     Image(
-        painter = rememberImagePainter(imageUrl + "original$url"),
+        painter = rememberImagePainter(urlProvider.imageUrl + "original$url"),
         contentDescription = null,
         modifier = modifier,
         contentScale = ContentScale.Crop,
@@ -190,9 +188,9 @@ fun FullSizeMoviePoster(modifier: Modifier = Modifier, url: String?, alpha: Floa
 
 @ExperimentalCoilApi
 @Composable
-fun SmallMoviePoster(modifier: Modifier = Modifier, url: String?) {
+fun SmallMoviePoster(modifier: Modifier = Modifier, url: String?, urlProvider: UrlProvider) {
     Image(
-        painter = rememberImagePainter(imageUrl + "w500$url", builder = {
+        painter = rememberImagePainter(urlProvider.imageUrl + "w500$url", builder = {
             transformations(RoundedCornersTransformation(88.dp.value))
         }), contentDescription = null, modifier = modifier
     )

@@ -1,14 +1,16 @@
 package com.sijanrijal.popularmovies.repository
 
-import android.content.Context
-import com.sijanrijal.popularmovies.R
+import com.sijanrijal.popularmovies.BuildConfig
+import com.sijanrijal.popularmovies.network.MovieApiService
 import com.sijanrijal.popularmovies.network.Result
-import com.sijanrijal.popularmovies.network.moviesApi
+import javax.inject.Inject
 
-class MovieRepositoryImpl(private val context: Context): MovieRepository {
+class MovieRepositoryImpl @Inject constructor(
+    private val moviesApi: MovieApiService
+) : MovieRepository {
 
     override suspend fun getNowPlayingMovies(): Result {
-        val response = moviesApi.getNowPlayingMovies(context.getString(R.string.API_KEY))
+        val response = moviesApi.getNowPlayingMovies(BuildConfig.API_KEY)
         return when {
             response.isSuccessful -> Result.Success(response.body()!!)
             else -> Result.Failure

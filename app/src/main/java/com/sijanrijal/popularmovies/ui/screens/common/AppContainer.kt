@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.sijanrijal.popularmovies.ui.Screen
 
 
@@ -32,8 +31,7 @@ private val bottomBarItems = listOf(
 
 @ExperimentalAnimationApi
 @Composable
-fun AppContainer(content: @Composable (innerPadding: PaddingValues, navController: NavHostController) -> Unit) {
-    val navController = rememberNavController()
+fun AppContainer(navController: NavHostController, content: @Composable (innerPadding: PaddingValues) -> Unit) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             bottomBar = {
@@ -55,7 +53,7 @@ fun AppContainer(content: @Composable (innerPadding: PaddingValues, navControlle
             floatingActionButtonPosition = FabPosition.Center,
             isFloatingActionButtonDocked = true
         ) {
-            content(it, navController)
+            content(it)
         }
     }
 }
