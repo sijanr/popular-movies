@@ -5,13 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.sijanrijal.popularmovies.network.Movie
 import com.sijanrijal.popularmovies.network.Result
 import com.sijanrijal.popularmovies.repository.MovieRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class MainViewModel(private val movieRepository: MovieRepository): ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(private val movieRepository: MovieRepository) :
+    ViewModel() {
 
     private val _nowPlayingMovies = MutableStateFlow(MoviesUiState(emptyList()))
     val nowPlayingMovies: StateFlow<MoviesUiState>
@@ -30,7 +34,7 @@ class MainViewModel(private val movieRepository: MovieRepository): ViewModel() {
 
     private suspend fun getNowPlayingMovies() {
         println("Getting movies...")
-       val response = withContext(Dispatchers.IO) {
+        val response = withContext(Dispatchers.IO) {
             movieRepository.getNowPlayingMovies()
         }
         when (response) {

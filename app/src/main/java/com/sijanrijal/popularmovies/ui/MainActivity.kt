@@ -7,25 +7,28 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.rememberNavController
 import coil.annotation.ExperimentalCoilApi
-import com.sijanrijal.popularmovies.repository.MovieRepositoryImpl
-import com.sijanrijal.popularmovies.ui.screens.HomeScreen
+import com.sijanrijal.popularmovies.network.UrlProvider
 import com.sijanrijal.popularmovies.ui.screens.common.AppContainer
-import com.sijanrijal.popularmovies.viewmodel.MainViewModel
-import com.sijanrijal.popularmovies.viewmodel.MainViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity: AppCompatActivity() {
+
+    @Inject lateinit var urlProvider: UrlProvider
 
     @ExperimentalCoilApi
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AppContainer { paddingValues, navControler ->
+            val navController = rememberNavController()
+            AppContainer(navController) { paddingValues ->
                 AppNavigation(modifier = Modifier
-                    .padding(bottom = paddingValues.calculateBottomPadding()/2)
-                    .fillMaxSize(), navControler)
+                    .padding(bottom = paddingValues.calculateBottomPadding() / 2)
+                    .fillMaxSize(), navController, urlProvider)
             }
         }
     }

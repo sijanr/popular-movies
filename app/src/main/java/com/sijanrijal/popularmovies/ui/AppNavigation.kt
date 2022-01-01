@@ -1,17 +1,19 @@
 package com.sijanrijal.popularmovies.ui
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import coil.annotation.ExperimentalCoilApi
+import com.sijanrijal.popularmovies.network.UrlProvider
 import com.sijanrijal.popularmovies.ui.screens.HomeScreen
+import com.sijanrijal.popularmovies.viewmodel.MainViewModel
 
 internal enum class Screen(val route: String) {
     Home("home"),
@@ -21,18 +23,20 @@ internal enum class Screen(val route: String) {
 @Composable
 internal fun AppNavigation(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    urlProvider: UrlProvider
 ) {
     NavHost(modifier = modifier, navController = navController, startDestination = Screen.Home.route) {
-        addHome()
+        addHome(urlProvider)
         addSearch()
     }
 }
 
 @ExperimentalCoilApi
-private fun NavGraphBuilder.addHome() {
+private fun NavGraphBuilder.addHome(urlProvider: UrlProvider) {
     composable(Screen.Home.route) {
-        HomeScreen()
+        val viewModel = hiltViewModel<MainViewModel>()
+        HomeScreen(viewModel = viewModel, urlProvider = urlProvider)
     }
 }
 
