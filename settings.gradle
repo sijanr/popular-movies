@@ -1,2 +1,6 @@
 rootProject.name = "PopularMovies"
-include ':app:home'
+include ':app'
+include ':core'
+include ':screens:home'
+include ':core:network'
+include ':navigation'
