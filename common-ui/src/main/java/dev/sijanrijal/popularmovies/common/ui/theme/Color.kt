@@ -1,4 +1,4 @@
-package dev.sijanrijal.popularmovies.ui.theme
+package dev.sijanrijal.popularmovies.common.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

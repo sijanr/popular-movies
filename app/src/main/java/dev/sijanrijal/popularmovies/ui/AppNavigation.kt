@@ -1,10 +1,9 @@
 package dev.sijanrijal.popularmovies.ui
 
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -14,6 +13,8 @@ import coil.annotation.ExperimentalCoilApi
 import dev.sijanrijal.popularmovies.home.ui.HomeScreen
 import dev.sijanrijal.popularmovies.home.viewmodel.HomeViewModel
 import dev.sijanrijal.popularmovies.navigation.ScreenRouteNavigation
+import dev.sijanrijal.popularmovies.screens.search.ui.SearchScreen
+import dev.sijanrijal.popularmovies.screens.search.viewmodel.SearchViewModel
 
 @Composable
 internal fun AppNavigation(
@@ -36,6 +37,7 @@ private fun NavGraphBuilder.addHome() {
 
 private fun NavGraphBuilder.addSearch() {
     composable(ScreenRouteNavigation.Search.route()) {
-        Text(text = "Search screen", color = LocalContentColor.current, style = MaterialTheme.typography.h3)
+        val searchViewModel = hiltViewModel<SearchViewModel>()
+        SearchScreen(viewModel = searchViewModel, modifier = Modifier.padding(16.dp))
     }
 }
