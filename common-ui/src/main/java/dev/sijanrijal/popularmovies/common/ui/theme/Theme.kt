@@ -1,4 +1,4 @@
-package dev.sijanrijal.popularmovies.ui.theme
+package dev.sijanrijal.popularmovies.common.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
@@ -10,7 +10,7 @@ private val LightColors = lightColors()
 private val DarkColors = darkColors()
 
 @Composable
-fun BingeWatchTheme(
+fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {

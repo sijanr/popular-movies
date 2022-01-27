@@ -1,4 +1,4 @@
-package dev.sijanrijal.popularmovies.ui.theme
+package dev.sijanrijal.popularmovies.common.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import dev.sijanrijal.popularmovies.R
+import dev.sijanrijal.popularmovies.common.ui.R
 
 private val PulpDisplayFontfamily = FontFamily(
     Font(R.font.pulp_display_light, FontWeight.SemiBold),

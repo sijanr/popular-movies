@@ -18,7 +18,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
@@ -178,7 +177,7 @@ fun FullSizeMoviePoster(modifier: Modifier = Modifier, url: String?, alpha: Floa
         animationSpec = tween(400, easing = LinearEasing)
     )
     Image(
-        painter = rememberImagePainter(urlProvider.imageUrl + "original$url"),
+        painter = rememberImagePainter(urlProvider.imageUrl + "/original$url"),
         contentDescription = null,
         modifier = modifier,
         contentScale = ContentScale.Crop,
@@ -190,7 +189,7 @@ fun FullSizeMoviePoster(modifier: Modifier = Modifier, url: String?, alpha: Floa
 @Composable
 fun SmallMoviePoster(modifier: Modifier = Modifier, url: String?, urlProvider: UrlProvider) {
     Image(
-        painter = rememberImagePainter(urlProvider.imageUrl + "w500$url", builder = {
+        painter = rememberImagePainter(urlProvider.imageUrl + "/w500$url", builder = {
             transformations(RoundedCornersTransformation(88.dp.value))
         }), contentDescription = null, modifier = modifier
     )

@@ -5,7 +5,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dev.sijanrijal.popularmovies.core.network.UrlProvider
+import dev.sijanrijal.popularmovies.core.network.services.moviedetail.MovieDetailApiService
 import dev.sijanrijal.popularmovies.core.network.services.nowplaying.NowPlayingApiService
+import dev.sijanrijal.popularmovies.core.network.services.popular.PopularApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -40,4 +42,12 @@ class NetworkModule {
     @Provides
     @AppScope
     fun nowPlayingApiService(retrofit: Retrofit): NowPlayingApiService = retrofit.create(NowPlayingApiService::class.java)
+
+    @Provides
+    @AppScope
+    fun popularMoviesService(retrofit: Retrofit): PopularApiService = retrofit.create(PopularApiService::class.java)
+
+    @Provides
+    @AppScope
+    fun movieDetailService(retrofit: Retrofit): MovieDetailApiService = retrofit.create(MovieDetailApiService::class.java)
 }
