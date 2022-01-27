@@ -2,6 +2,7 @@ package dev.sijanrijal.popularmovies.screens.search.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -31,7 +32,7 @@ import dev.sijanrijal.popularmovies.core.network.services.popular.PopularMovies
 import dev.sijanrijal.popularmovies.screens.search.viewmodel.SearchViewModel
 
 @Composable
-fun SearchScreen(modifier: Modifier = Modifier, viewModel: SearchViewModel) {
+fun SearchScreen(modifier: Modifier = Modifier, viewModel: SearchViewModel, onMovieSelected: (movieId: Long) -> Unit) {
     val lazyColumnState = rememberLazyListState()
     val searchMovies = viewModel.searchMoviesState.collectAsState()
     LazyColumn(modifier = modifier, state = lazyColumnState) {
@@ -42,13 +43,13 @@ fun SearchScreen(modifier: Modifier = Modifier, viewModel: SearchViewModel) {
 
         //Popular movies
         item {
-            PopularMoviesContainer(title = "Popular", movies = searchMovies.value.popularMovies, modifier = Modifier.padding(top = 32.dp))
+            PopularMoviesContainer(title = "Popular", movies = searchMovies.value.popularMovies, modifier = Modifier.padding(top = 32.dp), onMovieSelected = onMovieSelected)
         }
     }
 }
 
 @Composable
-fun HeaderText(modifier: Modifier = Modifier, text: String) {
+internal fun HeaderText(modifier: Modifier = Modifier, text: String) {
     Text(
         text = text,
         modifier = modifier,
@@ -58,29 +59,29 @@ fun HeaderText(modifier: Modifier = Modifier, text: String) {
 }
 
 @Composable
-fun PopularMoviesContainer(modifier: Modifier = Modifier, title: String, movies: List<PopularMovies>) {
+internal fun PopularMoviesContainer(modifier: Modifier = Modifier, title: String, movies: List<PopularMovies>, onMovieSelected: (movieId: Long) -> Unit) {
     Column(modifier = modifier) {
         MovieTypeContainer(title = title)
         val listState = rememberLazyListState()
         LazyRow(state = listState, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 22.dp)) {
             items(movies) { movie ->
-                MovieItemContainer(movie = movie, modifier = Modifier.width(IntrinsicSize.Min))
+                MovieItemContainer(movie = movie, modifier = Modifier.width(IntrinsicSize.Min), onMovieSelected = onMovieSelected)
             }
         }
     }
 }
 
 @Composable
-fun MovieItemContainer(modifier: Modifier = Modifier, movie: PopularMovies) {
+internal fun MovieItemContainer(modifier: Modifier = Modifier, movie: PopularMovies, onMovieSelected: (movieId: Long) -> Unit) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        MovieImage(modifier = Modifier.padding(bottom = 8.dp), imageUrl = UrlProvider.imageUrl+"/w500${movie.posterUrl}")
+        MovieImage(modifier = Modifier.padding(bottom = 8.dp).clickable{ onMovieSelected(movie.movieId)}, imageUrl = UrlProvider.imageUrl+"/w500${movie.posterUrl}")
         MovieTitleText(text = movie.title, modifier = Modifier.padding(horizontal = 4.dp))
     }
 }
 
 @ExperimentalCoilApi
 @Composable
-fun MovieImage(modifier: Modifier = Modifier, imageUrl: String, imageShape: Shape = RoundedCornerShape(12.dp)) {
+internal fun MovieImage(modifier: Modifier = Modifier, imageUrl: String, imageShape: Shape = RoundedCornerShape(12.dp)) {
     Image(
         painter = rememberImagePainter(
             data = imageUrl,
@@ -95,7 +96,7 @@ fun MovieImage(modifier: Modifier = Modifier, imageUrl: String, imageShape: Shap
 }
 
 @Composable
-fun MovieTitleText(modifier: Modifier = Modifier, text: String) {
+internal fun MovieTitleText(modifier: Modifier = Modifier, text: String) {
     Text(
         text = text,
         modifier = modifier,
@@ -105,7 +106,7 @@ fun MovieTitleText(modifier: Modifier = Modifier, text: String) {
 }
 
 @Composable
-fun MovieTypeContainer(modifier: Modifier = Modifier, title: String, ) {
+internal fun MovieTypeContainer(modifier: Modifier = Modifier, title: String, ) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
         MovieTypeText(text = title)
         TitleLineBar(modifier = Modifier.padding(horizontal = 16.dp).align(Alignment.CenterVertically))
@@ -113,7 +114,7 @@ fun MovieTypeContainer(modifier: Modifier = Modifier, title: String, ) {
 }
 
 @Composable
-fun MovieTypeText(modifier: Modifier = Modifier, text: String) {
+internal fun MovieTypeText(modifier: Modifier = Modifier, text: String) {
     Text(
         text = text,
         modifier = modifier,
@@ -123,6 +124,6 @@ fun MovieTypeText(modifier: Modifier = Modifier, text: String) {
 }
 
 @Composable
-fun TitleLineBar(modifier: Modifier = Modifier, barWidth: Dp = 88.dp, barHeight: Dp = 2.dp, barColor: Color = Grey400, barShape: Shape = RoundedCornerShape(50)) {
+internal fun TitleLineBar(modifier: Modifier = Modifier, barWidth: Dp = 88.dp, barHeight: Dp = 2.dp, barColor: Color = Grey400, barShape: Shape = RoundedCornerShape(50)) {
     Divider(modifier = modifier.width(barWidth).height(barHeight).background(color = barColor, shape = barShape))
 }

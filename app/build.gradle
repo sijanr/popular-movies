@@ -50,6 +50,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':screens:home')
     implementation project(':screens:search')
+    implementation project(':screens:moviedetail')
     implementation project(':navigation')
     implementation project(':common-ui')
     testImplementation 'junit:junit:4.13'

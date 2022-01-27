@@ -14,4 +14,5 @@ data class PopularMovies(
     @SerializedName("release_date") val releaseDate: String,
     @SerializedName("title") val title: String,
     @SerializedName("vote_average") val rating: Float,
+    @SerializedName("id") val movieId: Long
 )
