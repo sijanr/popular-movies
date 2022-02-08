@@ -25,7 +25,7 @@ class MainActivity: AppCompatActivity() {
             val navController = rememberNavController()
             AppContainer(navController) { paddingValues ->
                 AppNavigation(modifier = Modifier
-                    .padding(bottom = paddingValues.calculateBottomPadding() / 2)
+                    .padding(bottom = paddingValues.calculateBottomPadding())
                     .fillMaxSize(), navController)
             }
         }

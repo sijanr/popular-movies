@@ -8,6 +8,9 @@ import dev.sijanrijal.popularmovies.core.network.UrlProvider
 import dev.sijanrijal.popularmovies.core.network.services.moviedetail.MovieDetailApiService
 import dev.sijanrijal.popularmovies.core.network.services.nowplaying.NowPlayingApiService
 import dev.sijanrijal.popularmovies.core.network.services.popular.PopularApiService
+import dev.sijanrijal.popularmovies.core.network.services.search.SearchApiService
+import dev.sijanrijal.popularmovies.core.network.services.toprated.TopRatedMoviesApiService
+import dev.sijanrijal.popularmovies.core.network.services.upcoming.UpcomingMoviesApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -49,5 +52,17 @@ class NetworkModule {
 
     @Provides
     @AppScope
+    fun topRatedMoviesApiService(retrofit: Retrofit): TopRatedMoviesApiService = retrofit.create(TopRatedMoviesApiService::class.java)
+
+    @Provides
+    @AppScope
+    fun upcomingMoviesApiService(retrofit: Retrofit): UpcomingMoviesApiService = retrofit.create(UpcomingMoviesApiService::class.java)
+
+    @Provides
+    @AppScope
     fun movieDetailService(retrofit: Retrofit): MovieDetailApiService = retrofit.create(MovieDetailApiService::class.java)
+
+    @Provides
+    @AppScope
+    fun searchApiService(retrofit: Retrofit): SearchApiService = retrofit.create(SearchApiService::class.java)
 }

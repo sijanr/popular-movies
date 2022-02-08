@@ -1,5 +1,6 @@
 package dev.sijanrijal.popularmovies.ui
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
@@ -34,7 +35,7 @@ internal fun AppNavigation(
         navController = navController,
         startDestination = MainNavigationScreens.Home.route()
     ) {
-        addHome()
+        addHome(navController)
         addSearch(navController)
         addMovieDetails(MainNavigationScreens.Home, navController)
         addMovieDetails(MainNavigationScreens.Search, navController)
@@ -42,25 +43,43 @@ internal fun AppNavigation(
 }
 
 @ExperimentalCoilApi
-private fun NavGraphBuilder.addHome() {
+private fun NavGraphBuilder.addHome(navController: NavHostController) {
     composable(MainNavigationScreens.Home.route()) {
         val viewModel = hiltViewModel<HomeViewModel>()
-        HomeScreen(viewModel = viewModel)
+        HomeScreen(viewModel = viewModel, onMovieClicked = { movieId ->
+            navController.navigate(
+                LeafNavigationScreens.Details.createRoute(
+                    MainNavigationScreens.Home,
+                    movieId
+                )
+            )
+        })
     }
 }
 
 private fun NavGraphBuilder.addSearch(navController: NavHostController) {
     composable(MainNavigationScreens.Search.route()) {
         val searchViewModel = hiltViewModel<SearchViewModel>()
-        SearchScreen(viewModel = searchViewModel, modifier = Modifier.padding(16.dp), onMovieSelected = { movieId ->
-            navController.navigate(LeafNavigationScreens.Details.createRoute(MainNavigationScreens.Search, movieId))
-        })
+        SearchScreen(
+            viewModel = searchViewModel,
+            modifier = Modifier.padding(16.dp).fillMaxSize(),
+            onMovieSelected = { movieId ->
+                navController.navigate(
+                    LeafNavigationScreens.Details.createRoute(
+                        MainNavigationScreens.Search,
+                        movieId
+                    )
+                )
+            })
     }
 }
 
 @ExperimentalUnitApi
 @ExperimentalMaterialApi
-private fun NavGraphBuilder.addMovieDetails(root: MainNavigationScreens, navController: NavHostController) {
+private fun NavGraphBuilder.addMovieDetails(
+    root: MainNavigationScreens,
+    navController: NavHostController
+) {
     composable(
         route = LeafNavigationScreens.Details.createRoute(root),
         arguments = listOf(
@@ -70,7 +89,7 @@ private fun NavGraphBuilder.addMovieDetails(root: MainNavigationScreens, navCont
         )
     ) { navBackStackEntry ->
         val movieId = navBackStackEntry.arguments?.getLong("movieId")
-        if (movieId!=null) {
+        if (movieId != null) {
             MovieDetailScreen(movieId = movieId, onNavigateUp = navController::navigateUp)
         }
     }
