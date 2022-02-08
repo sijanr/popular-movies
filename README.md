@@ -13,8 +13,8 @@ In order to build and install the application you will need
 * Android emulator or device running on at least version Lollipop
 
 #### Installing
-* Get the API key and replace the value of the string name "API_KEY" in the strings.xml file
-* If you entered a valid API key, you should be able to run the application without any problem
+* Get the API key and place it in gradle.properties file as TMDB_API_KEY
+* Build and install the project
 
 ## Authors
 * [Sijan Rijal](https://github.com/sijanr)
