@@ -5,6 +5,14 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file("$rootDir/release/keystore.jks")
+            storePassword POPULAR_MOVIES_RELEASE_KEY_PWD
+            keyAlias 'popularmovies'
+            keyPassword POPULAR_MOVIES_RELEASE_KEY_PWD
+        }
+    }
     compileSdkVersion 32
 
     defaultConfig {
@@ -21,8 +29,10 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 
@@ -53,6 +63,7 @@ dependencies {
     implementation project(':screens:moviedetail')
     implementation project(':navigation')
     implementation project(':common-ui')
+    implementation project(':core:network')
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
