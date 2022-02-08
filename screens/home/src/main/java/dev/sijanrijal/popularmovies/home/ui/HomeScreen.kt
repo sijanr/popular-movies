@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
@@ -34,7 +35,11 @@ import kotlin.math.roundToInt
 
 @ExperimentalCoilApi
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, viewModel: HomeViewModel) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel,
+    onMovieClicked: (movieId: Long) -> Unit
+) {
     val urlProvider = viewModel.urlProvider
     val movieList = viewModel.nowPlayingMovies.collectAsState().value.moviesList
     viewModel.fetchNowPlayingMovies()
@@ -121,7 +126,10 @@ fun HomeScreen(modifier: Modifier = Modifier, viewModel: HomeViewModel) {
                         y = lerp((-75).dp, 80.dp, distanceFromCenter)
                     )
                     .width(movieContentWidthRatio)
-                    .background(Color.Transparent),
+                    .background(Color.Transparent)
+                    .clickable {
+                        movie.id?.let(onMovieClicked)
+                    },
                 movieName = movie.title,
                 posterUrl = movie.posterUrl,
                 urlProvider = urlProvider
@@ -152,7 +160,12 @@ fun FractionalRectangle(startFraction: Float, endFraction: Float) = object : Sha
 
 @ExperimentalCoilApi
 @Composable
-fun MovieContent(modifier: Modifier = Modifier, movieName: String?, posterUrl: String?, urlProvider: UrlProvider) {
+fun MovieContent(
+    modifier: Modifier = Modifier,
+    movieName: String?,
+    posterUrl: String?,
+    urlProvider: UrlProvider
+) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         SmallMoviePoster(
             url = posterUrl, modifier = Modifier
@@ -171,7 +184,12 @@ fun MovieContent(modifier: Modifier = Modifier, movieName: String?, posterUrl: S
 
 @ExperimentalCoilApi
 @Composable
-fun FullSizeMoviePoster(modifier: Modifier = Modifier, url: String?, alpha: Float, urlProvider: UrlProvider) {
+fun FullSizeMoviePoster(
+    modifier: Modifier = Modifier,
+    url: String?,
+    alpha: Float,
+    urlProvider: UrlProvider
+) {
     val animateAlpha by animateFloatAsState(
         targetValue = alpha,
         animationSpec = tween(400, easing = LinearEasing)
