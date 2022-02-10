@@ -1,5 +1,5 @@
 # Popular Movies
-Popular Movies is an Android application that uses [TMDB](https://www.themoviedb.org/) API to allow users to filter through different types of movies and display the information of the movies along with the reviews. You can favorite movies that you like which will be saved to the database.
+Popular Movies is an Android application that uses [TMDB](https://www.themoviedb.org/) API to allow users to filter through different types of movies and display the information of the movies. It is created using latest technology stacks - Kotlin, Hilt, and Jetpack Compose
 
 <img src ="https://github.com/sijanr/popular-movies/blob/main/screenshots/1.png" width="240" height="450">&nbsp;&nbsp;<img src ="https://github.com/sijanr/popular-movies/blob/main/screenshots/2.png?raw=true" width="240" height="450">&nbsp;&nbsp;<img src ="https://github.com/sijanr/popular-movies/blob/main/screenshots/3.png" width="240" height="450">
 
