@@ -34,8 +34,7 @@ class HomeViewModel @Inject constructor(val urlProvider: UrlProvider, private va
     private suspend fun getNowPlayingMovies() {
         when (val response = movieRepository.getNowPlayingMovies()) {
             is Result.Success -> {
-                val filterList = response.result.movies.filterNotNull()
-                _nowPlayingMovies.value = MoviesUiState(filterList)
+                _nowPlayingMovies.value = MoviesUiState(response.result)
             }
             is Result.Failure -> _errorFetchingMovies.value = true
         }
