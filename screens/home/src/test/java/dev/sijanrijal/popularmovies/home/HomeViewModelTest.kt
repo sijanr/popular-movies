@@ -2,7 +2,6 @@ package dev.sijanrijal.popularmovies.home
 
 import dev.sijanrijal.popularmovies.core.network.UrlProvider
 import dev.sijanrijal.popularmovies.core.network.services.nowplaying.NowPlayingMovie
-import dev.sijanrijal.popularmovies.core.network.services.popular.PopularMovies
 import dev.sijanrijal.popularmovies.home.repository.HomeRepository
 import dev.sijanrijal.popularmovies.home.repository.Result
 import dev.sijanrijal.popularmovies.home.viewmodel.HomeViewModel
@@ -13,7 +12,6 @@ import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Test
-
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.runner.RunWith

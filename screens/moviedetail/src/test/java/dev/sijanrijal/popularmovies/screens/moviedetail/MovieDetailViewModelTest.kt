@@ -5,7 +5,6 @@ import dev.sijanrijal.popularmovies.screens.moviedetail.repository.MovieDetailRe
 import dev.sijanrijal.popularmovies.screens.moviedetail.repository.Result
 import dev.sijanrijal.popularmovies.screens.moviedetail.viewmodel.MovieDetailViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Test
