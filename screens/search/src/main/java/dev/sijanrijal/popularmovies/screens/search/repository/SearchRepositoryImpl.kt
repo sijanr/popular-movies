@@ -28,6 +28,8 @@ class SearchRepositoryImpl @Inject constructor(
             val response = popularApiService.getPopularMovies()
             if (response.isSuccessful) {
                 emit(response.body()!!.movies)
+            } else {
+                emit(emptyList())
             }
         }.flowOn(Dispatchers.IO)
     }
@@ -49,6 +51,8 @@ class SearchRepositoryImpl @Inject constructor(
                 }
                 if (movies!=null && movies.isNotEmpty()) {
                     emit(movies)
+                } else {
+                    emit(emptyList())
                 }
             }
         }.flowOn(Dispatchers.IO)
@@ -71,6 +75,8 @@ class SearchRepositoryImpl @Inject constructor(
                 }
                 if (movies!=null && movies.isNotEmpty()) {
                     emit(movies)
+                } else {
+                    emit(emptyList())
                 }
             }
         }
