@@ -13,7 +13,7 @@ class HomeRepositoryImpl @Inject constructor(
         withContext(Dispatchers.IO) {
             val response = nowPlayingApi.getNowPlayingMovies()
             when {
-                response.isSuccessful -> Result.Success(response.body()!!)
+                response.isSuccessful -> Result.Success(response.body()!!.movies.filterNotNull())
                 else -> Result.Failure
             }
         }
